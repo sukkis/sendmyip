@@ -1,0 +1,26 @@
+[package]
+name = "sendmyip"
+version = "0.1.0"
+edition = "2021"
+authors = ["sukkis <rust.stuck095@passmail.net>"]
+description = "Client to send host IP information to server."
+license = "GPL-3.0"
+keywords = ["IP", "network", "cli"]
+categories = ["network-programming"]
+repository = "https://github.com/sukkis/getserviceip"
+readme = "README.md"
+# check this later before publishing
+# include = ["src/*.rs", "tests/*.rs", "tests/common/*.rs", "README.md", "Cargo.toml", "LICENSE"]
+
+[dependencies]
+clap = { version = "4.5.17", features = ["derive"] }
+reqwest = { version = "0.12", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+
+[lib]
+name="sendmyip"
+path="src/lib.rs"
+
+[[bin]]
+name="sendmyip"
+path="src/bin.rs"
