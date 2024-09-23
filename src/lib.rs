@@ -1,7 +1,7 @@
+use std::collections::HashMap;
 use std::net::IpAddr;
 use std::process::Command;
 use std::str;
-use std::collections::HashMap;
 
 pub fn get_hostname() -> String {
     let command = "cat /etc/hostname".to_string();
@@ -90,7 +90,7 @@ pub fn gather_info(address: &str, interface: &str) -> HashMap<String, String> {
     let v4 = get_ipv4_address(interface);
     let v6 = get_ipv6_address(interface);
     let hostname = get_hostname();
-    println!("To be posted to  {}", &address);   
+    println!("To be posted to  {}", &address);
     map.insert("hostname".to_string(), hostname.to_string());
     map.insert("ip_v4".to_string(), v4.to_string());
     map.insert("ip_v6".to_string(), v6.to_string());
@@ -100,12 +100,23 @@ pub fn gather_info(address: &str, interface: &str) -> HashMap<String, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::env;
+
+    fn get_interface() -> String {
+        // Try if we get something from env variable
+        let interface_env = env::var("SENDMYIP_INTERFACE").ok();
+        // Determine the interface to use
+        if let Some(interface) = interface_env {
+            interface.to_string()
+        } else {
+            "eth0".to_string()
+        }
+    }
 
     #[test]
     fn test_get_ipv4_address_valid_interface() {
-        // Replace "eth0" with an actual interface name on your system for testing
-        let interface = "wlp0s20f3";
-        let ip = get_ipv4_address(interface);
+        let interface = get_interface();
+        let ip = get_ipv4_address(&interface);
         assert!(!ip.is_empty(), "IP address should not be empty");
     }
 
@@ -118,9 +129,8 @@ mod tests {
 
     #[test]
     fn test_get_ipv6_address_valid_interface() {
-        // Replace "eth0" with an actual interface name on your system for testing
-        let interface = "wlp0s20f3";
-        let ip = get_ipv6_address(interface);
+        let interface = get_interface();
+        let ip = get_ipv6_address(&interface);
         assert!(!ip.is_empty(), "IP address should not be empty");
     }
 
@@ -140,13 +150,13 @@ mod tests {
     #[test]
     fn test_gather_info() {
         // Replace "eth0" with an actual interface name on your system for testing
-	let interface = "wlp0s20f3";
-	let address = "http://127.0.0.1/8087/ip";
-	let map = gather_info(address, interface);
-	assert!(!map.is_empty());
-	assert!(map.len() == 3);
-	assert!(map.contains_key("ip_v4"));
-	assert!(map.contains_key("ip_v6"));
-	assert!(map.contains_key("hostname"));	
+        let interface = &get_interface();
+        let address = "http://127.0.0.1/8087/ip";
+        let map = gather_info(address, interface);
+        assert!(!map.is_empty());
+        assert!(map.len() == 3);
+        assert!(map.contains_key("ip_v4"));
+        assert!(map.contains_key("ip_v6"));
+        assert!(map.contains_key("hostname"));
     }
 }
